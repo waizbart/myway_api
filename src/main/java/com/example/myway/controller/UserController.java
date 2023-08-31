@@ -1,9 +1,9 @@
 package com.example.myway.controller;
 
-import com.example.myway.user.User;
-import com.example.myway.user.UserRequestDTO;
-import com.example.myway.user.UserResponseDTO;
-import com.example.myway.user.UserRepository;
+import com.example.myway.domain.user.User;
+import com.example.myway.domain.user.UserRequestDTO;
+import com.example.myway.domain.user.UserResponseDTO;
+import com.example.myway.domain.user.UserRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

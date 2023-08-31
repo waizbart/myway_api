@@ -1,4 +1,4 @@
-package com.example.myway.user;
+package com.example.myway.domain.user;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
