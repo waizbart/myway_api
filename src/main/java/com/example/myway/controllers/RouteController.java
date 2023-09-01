@@ -1,9 +1,9 @@
-package com.example.myway.controller;
+package com.example.myway.controllers;
 
 import com.example.myway.domain.route.Route;
 import com.example.myway.domain.route.RouteRequestDTO;
 import com.example.myway.domain.route.RouteResponseDTO;
-import com.example.myway.domain.route.RouteRepository;
+import com.example.myway.repositories.RouteRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
