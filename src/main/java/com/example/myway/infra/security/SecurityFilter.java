@@ -1,6 +1,6 @@
-package com.example.auth.infra.security;
+package com.example.myway.infra.security;
 
-import com.example.auth.repositories.UserRepository;
+import com.example.myway.repositories.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

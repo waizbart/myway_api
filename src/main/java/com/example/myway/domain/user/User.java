@@ -24,4 +24,6 @@ public class User {
         this.email = data.email();
         this.age = data.age();
     }
+
+    public stat
 }

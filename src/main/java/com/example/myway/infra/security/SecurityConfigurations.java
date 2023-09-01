@@ -1,4 +1,4 @@
-package com.example.auth.infra.security;
+package com.example.myway.infra.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
