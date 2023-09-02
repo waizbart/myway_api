@@ -14,6 +14,7 @@ import com.example.myway.domain.route.Route;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Table(name = "users")
 @Entity(name = "users")
@@ -29,8 +30,8 @@ public class User implements UserDetails {
     private String password;
     private UserRole role;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "routes")
-    private Route route;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private Set<Route> routes;
 
     public User(String login, String password, UserRole role) {
         this.login = login;
