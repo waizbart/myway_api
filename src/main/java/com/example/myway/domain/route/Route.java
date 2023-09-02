@@ -5,27 +5,25 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import com.example.myway.domain.user.User;
 
-@Table(name = "routes")
-@Entity(name = "routes")
+@Table(name = "route")
+@Entity(name = "route")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Route {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
     private String name;
-    private Double initial_lat;
-    private Double initial_long;
-    private Double final_lat;
-    private Double final_long;
 
-    public Route(RouteRequestDTO data){
-        this.name= data.name();
-        this.initial_lat = data.initial_lat();
-        this.initial_long = data.initial_long();
-        this.final_lat = data.final_lat();
-        this.final_long = data.final_long();
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    public Route(RouteRequestDTO data) {
+        this.name = data.name();
     }
 }
