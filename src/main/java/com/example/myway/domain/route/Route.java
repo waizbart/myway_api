@@ -23,7 +23,8 @@ public class Route {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public Route(RouteRequestDTO data) {
+    public Route(RouteRequestDTO data, User user) {
         this.name = data.name();
+        this.user = user;
     }
 }

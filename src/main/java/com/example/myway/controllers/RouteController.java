@@ -1,18 +1,20 @@
 package com.example.myway.controllers;
 
 import com.example.myway.domain.route.Route;
+import com.example.myway.domain.user.User;
 import com.example.myway.domain.route.RouteRequestDTO;
 import com.example.myway.domain.route.RouteResponseDTO;
 import com.example.myway.repositories.RouteRepository;
-
 import jakarta.validation.Valid;
-
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticatedPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 @RestController()
 @RequestMapping("route")
@@ -22,13 +24,36 @@ public class RouteController {
     RouteRepository repository;
 
     @PostMapping
-    public ResponseEntity<Route> postRoute(@RequestBody @Valid RouteRequestDTO body){
-        this.repository.save(new Route(body));
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Route> postRoute(@RequestBody @Valid RouteRequestDTO body) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            User authenticatedUser = (User) authentication.getPrincipal();
+
+            Route route = new Route(body, authenticatedUser);
+            this.repository.save(route);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     @GetMapping
-    public ResponseEntity<List<RouteResponseDTO>> getAllRoutes(){
-        return ResponseEntity.ok(this.repository.findAll().stream().map(RouteResponseDTO::new).toList());
+    public ResponseEntity<List<RouteResponseDTO>> getAllRoutes() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            String userId = ((User) authentication.getPrincipal()).getId();
+            List<Route> userRoutes = repository.findByUser_Id(userId);
+
+            List<RouteResponseDTO> response = userRoutes.stream()
+    .map(route -> new RouteResponseDTO(route))
+    .collect(Collectors.toList());
+    
+            return ResponseEntity.ok(response);
+        } else {
+            // Lidar com o caso em que o usuário não está autenticado
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 }
