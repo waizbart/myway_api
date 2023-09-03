@@ -1,4 +1,15 @@
 package com.example.myway.domain.user;
 
-public record RegisterDTO(String login, String password, UserRole role) {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+public record RegisterDTO(
+                @NotNull @NotBlank String login,
+                @NotNull @NotBlank String password,
+                UserRole role,
+                @NotNull Boolean hasCar) {
+        public RegisterDTO {
+                role = UserRole.USER;
+                if (hasCar == null) hasCar = false;
+        }
 }

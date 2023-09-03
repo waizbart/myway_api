@@ -29,14 +29,16 @@ public class User implements UserDetails {
     private String login;
     private String password;
     private UserRole role;
+    private Boolean hasCar;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private Set<Route> routes;
 
-    public User(String login, String password, UserRole role) {
+    public User(String login, String password, UserRole role, Boolean hasCar) {
         this.login = login;
         this.password = password;
         this.role = role;
+        this.hasCar = hasCar;
     }
 
     @Override

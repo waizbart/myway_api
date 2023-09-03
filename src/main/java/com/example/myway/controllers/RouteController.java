@@ -6,6 +6,8 @@ import com.example.myway.domain.route.RouteRequestDTO;
 import com.example.myway.domain.route.RouteResponseDTO;
 import com.example.myway.repositories.RouteRepository;
 import jakarta.validation.Valid;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +26,7 @@ public class RouteController {
     RouteRepository repository;
 
     @PostMapping
-    public ResponseEntity<Route> postRoute(@RequestBody @Valid RouteRequestDTO body) {
+    public ResponseEntity<Route> postRoute(@RequestBody @Valid RouteRequestDTO body) throws IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null && authentication.isAuthenticated()) {
@@ -47,12 +49,28 @@ public class RouteController {
             List<Route> userRoutes = repository.findByUser_Id(userId);
 
             List<RouteResponseDTO> response = userRoutes.stream()
-    .map(route -> new RouteResponseDTO(route))
-    .collect(Collectors.toList());
-    
+                    .map(route -> new RouteResponseDTO(route))
+                    .collect(Collectors.toList());
             return ResponseEntity.ok(response);
         } else {
-            // Lidar com o caso em que o usuário não está autenticado
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    @GetMapping("/route/{id}")
+    public ResponseEntity<RouteResponseDTO> getRoute(@PathVariable String id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            String userId = ((User) authentication.getPrincipal()).getId();
+            Route route = repository.findById(id).orElse(null);
+
+            if (route != null && route.getUser().getId().equals(userId)) {
+                return ResponseEntity.ok(new RouteResponseDTO(route));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+        } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
