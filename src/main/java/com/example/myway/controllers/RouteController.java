@@ -5,6 +5,8 @@ import com.example.myway.domain.user.User;
 import com.example.myway.domain.route.RouteRequestDTO;
 import com.example.myway.domain.route.RouteResponseDTO;
 import com.example.myway.repositories.RouteRepository;
+import com.example.myway.services.RouteMatchingService;
+
 import jakarta.validation.Valid;
 
 import java.io.IOException;
@@ -57,21 +59,17 @@ public class RouteController {
         }
     }
 
-    @GetMapping("/route/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<RouteResponseDTO> getRoute(@PathVariable String id) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Route route = repository.findById(id).orElse(null);
+        List<Route> routes = repository.findAll();
 
-        if (authentication != null && authentication.isAuthenticated()) {
-            String userId = ((User) authentication.getPrincipal()).getId();
-            Route route = repository.findById(id).orElse(null);
-
-            if (route != null && route.getUser().getId().equals(userId)) {
-                return ResponseEntity.ok(new RouteResponseDTO(route));
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
+        if (route != null) {
+            RouteMatchingService matchingService = new RouteMatchingService();
+            matchingService.matchRoute(route, routes);
+            return ResponseEntity.ok().build();
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.notFound().build();
         }
     }
 }
