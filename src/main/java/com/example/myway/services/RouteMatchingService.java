@@ -1,58 +1,72 @@
 package com.example.myway.services;
 
+import com.example.myway.domain.route.Coordinate;
 import com.example.myway.domain.route.Route;
-import com.example.myway.repositories.RouteRepository;
-
+import java.io.IOException;
 import java.util.List;
-
 import org.springframework.stereotype.Service;
+import com.fastdtw.dtw.FastDTW;
+import com.fastdtw.timeseries.TimeSeries;
+import com.fastdtw.timeseries.TimeSeriesBase;
+import com.fastdtw.util.DistanceFunction;
+import com.fastdtw.dtw.TimeWarpInfo;
+import com.fastdtw.dtw.WarpPath;
 
 @Service
 public class RouteMatchingService {
+    // Raio médio da Terra em metros
+    private static final double EARTH_RADIUS = 6371000; // Em metros
 
-    public void matchRoute(Route myRoute, List<Route> allRoutes) {
-        String coordinates = myRoute.getCoordinates();
+    public void matchRoute(Route myRoute, List<Route> allRoutes) throws IOException {
+        Coordinate[] coordinates = myRoute.getCoordinatesJSON();
 
         for (Route otherRoute : allRoutes) {
             if (myRoute.getId().equals(otherRoute.getId())) {
                 continue;
             }
-            
-            String otherCoordinates = otherRoute.getCoordinates();
 
-            double percentage = levenshteinDistancePercent(coordinates, otherCoordinates);
+            Coordinate[] otherCoordinates = otherRoute.getCoordinatesJSON();
 
-            System.out.println("Match found!");
-            System.out.println("Route 1: " + myRoute.getName());
-            System.out.println("Route 2: " + otherRoute.getName());
-            System.out.println("Percentage: " + percentage);
+            TimeSeries series1 = convertToTimeSeries(coordinates);
+            TimeSeries series2 = convertToTimeSeries(otherCoordinates);
+
+            // Definir uma métrica de distância personalizada com Haversine
+            DistanceFunction haversineDistance = (a, b) -> {
+                double lat1 = a[0];
+                double lon1 = a[1];
+                double lat2 = b[0];
+                double lon2 = b[1];
+
+                double dLat = Math.toRadians(lat2 - lat1);
+                double dLon = Math.toRadians(lon2 - lon1);
+
+                double aVal = Math.pow(Math.sin(dLat / 2), 2) + Math.cos(Math.toRadians(lat1))
+                        * Math.cos(Math.toRadians(lat2)) * Math.pow(Math.sin(dLon / 2), 2);
+
+                double c = 2 * Math.atan2(Math.sqrt(aVal), Math.sqrt(1 - aVal));
+                double distance = EARTH_RADIUS * c;
+
+                return distance;
+            };
+
+            // Calcular a distância DTW entre as séries temporais usando "fastdtw" com
+            // Haversine
+            TimeWarpInfo warpInfo = FastDTW.compare(series1, series2, haversineDistance);
+
+            // Imprimir a distância DTW
+            System.out.println("Distância DTW entre as rotas " + myRoute.getName() + " e " + otherRoute.getName() + " = " + warpInfo.getDistance() + " metros");
         }
     }
 
-    public static double levenshteinDistancePercent(String str1, String str2) {
-        int len1 = str1.length();
-        int len2 = str2.length();
+    private static TimeSeries convertToTimeSeries(Coordinate[] coordinates) {
+        TimeSeriesBase.Builder builder = new TimeSeriesBase.Builder();
 
-        int[][] matrix = new int[len1 + 1][len2 + 1];
-
-        for (int i = 0; i <= len1; i++) {
-            matrix[i][0] = i;
-        }
-        for (int j = 0; j <= len2; j++) {
-            matrix[0][j] = j;
+        Integer i = 0;
+        for (Coordinate coordinate : coordinates) {
+            builder.add(i, coordinate.getLatitude(), coordinate.getLongitude());
+            i += 1;
         }
 
-        for (int i = 1; i <= len1; i++) {
-            for (int j = 1; j <= len2; j++) {
-                int cost = (str1.charAt(i - 1) == str2.charAt(j - 1)) ? 0 : 1;
-                matrix[i][j] = Math.min(
-                        Math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1),
-                        matrix[i - 1][j - 1] + cost);
-            }
-        }
-
-        int maxLength = Math.max(str1.length(), str2.length());
-        double percentage = (1.0 - (double) matrix[len1][len2] / maxLength) * 100.0;
-        return percentage;
+        return builder.build();
     }
 }

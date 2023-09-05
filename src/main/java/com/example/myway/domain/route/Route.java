@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.io.IOException;
 
 import com.example.myway.domain.user.User;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Table(name = "route")
 @Entity(name = "route")
@@ -31,5 +32,10 @@ public class Route {
         this.name = data.name();
         this.coordinates = data.coordinatesToString();
         this.user = user;
+    }
+
+    public Coordinate[] getCoordinatesJSON() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(this.coordinates, Coordinate[].class);
     }
 }

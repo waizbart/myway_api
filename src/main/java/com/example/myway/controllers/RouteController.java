@@ -60,7 +60,7 @@ public class RouteController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<RouteResponseDTO> getRoute(@PathVariable String id) {
+    public ResponseEntity<RouteResponseDTO> getRoute(@PathVariable String id) throws IOException {
         Route route = repository.findById(id).orElse(null);
         List<Route> routes = repository.findAll();
 
