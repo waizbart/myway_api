@@ -5,6 +5,7 @@ import com.example.myway.domain.user.User;
 import com.example.myway.domain.route.RouteRequestDTO;
 import com.example.myway.domain.route.RouteResponseDTO;
 import com.example.myway.repositories.RouteRepository;
+import com.example.myway.services.DistanceListDTO;
 import com.example.myway.services.RouteMatchingService;
 
 import jakarta.validation.Valid;
@@ -60,14 +61,15 @@ public class RouteController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<RouteResponseDTO> getRoute(@PathVariable String id) throws IOException {
+    public ResponseEntity<List<DistanceListDTO>> getRoute(@PathVariable String id) throws IOException {
         Route route = repository.findById(id).orElse(null);
         List<Route> routes = repository.findAll();
 
         if (route != null) {
             RouteMatchingService matchingService = new RouteMatchingService();
-            matchingService.matchRoute(route, routes);
-            return ResponseEntity.ok().build();
+            List<DistanceListDTO> routesMatch = matchingService.matchRoute(route, routes);
+
+            return ResponseEntity.ok(routesMatch);
         } else {
             return ResponseEntity.notFound().build();
         }
