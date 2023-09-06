@@ -27,16 +27,18 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String login;
-    private String password;
+    private String password;    
+    private String phone;
     private UserRole role;
     private Boolean hasCar;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private Set<Route> routes;
 
-    public User(String login, String password, UserRole role, Boolean hasCar) {
+    public User(String login, String password, String phone, UserRole role, Boolean hasCar) {
         this.login = login;
-        this.password = password;
+        this.password = password;        
+        this.phone = phone;
         this.role = role;
         this.hasCar = hasCar;
     }
