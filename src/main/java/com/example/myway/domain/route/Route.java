@@ -21,7 +21,9 @@ public class Route {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    private String name;    
+    private String name;   
+
+    @Column(columnDefinition ="LONGTEXT")
     private String coordinates;
 
     @ManyToOne

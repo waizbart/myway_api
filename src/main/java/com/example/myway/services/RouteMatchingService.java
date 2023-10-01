@@ -10,9 +10,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import com.fastdtw.dtw.FastDTW;
 import com.fastdtw.timeseries.TimeSeries;
